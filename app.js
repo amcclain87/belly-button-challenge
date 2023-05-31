@@ -1,8 +1,11 @@
+//Data source URL
 const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json";
+//Calling the initial function
 init();
 
-
+//Function to set the dashbaord
 function init() {
+    //Data pull
     d3.json(url).then(function(data) {
         console.log(data.metadata);
         
@@ -11,6 +14,7 @@ function init() {
         dropDown(ids);
         //initial ID
         let firstId = ids[0];
+        //Dashboard object functions
         demoInfo(firstId);
         bar(firstId);
         bubble(firstId);
@@ -19,12 +23,14 @@ function init() {
       });
 }
 
+//Creating the drop down
 function dropDown(ids) {
+    //locating the dropdown HTML element
     var selectData = document.getElementById("selDataset");
-    var options = ids;
 
-    for(let i = 0; i<options.length; i++) {
-        let opt = options[i];
+    //for loop to add each id to the drop down
+    for(let i = 0; i<ids.length; i++) {
+        let opt = ids[i];
         let el = document.createElement("option");
         el.textContent = String(opt);
         el.value = opt;
@@ -32,18 +38,22 @@ function dropDown(ids) {
     }
 }
 
+//creating the bar graph
 function bar(id) {
     d3.json(url).then(function(data) {
+        //drilling to the correct data
         let samples = data.samples;
+        //filter data by ID
         let r = samples.filter(s => s.id==id);
         let r1 = r[0];
-        let otu_ids = r1.otu_ids.slice(0,10).reverse().map(id => `OTU ${id}`);
+        //identifying variables of bar graph
+        let otu_ids = r1.otu_ids;
         let otu_labels = r1.otu_labels;
         let sample_values = r1.sample_values;
 
         trace1 = {
             x: sample_values.slice(0,10).reverse(),
-            y: otu_ids,
+            y: otu_ids.slice(0,10).reverse().map(id => `OTU ${id}`),
             text: otu_labels.slice(0,10).reverse(),
             type: "bar",
             orientation: "h",
@@ -59,29 +69,34 @@ function bar(id) {
     })
 }
 
+//reading when the dropdown changes
 function optionChanged(option) {
     console.log(option);
+    //calling dashboard functions and running the new ID selection through
     demoInfo(option);
     bar(option);
     bubble(option);
     guage(option);
 }
 
-
+//filtering and adding demographic data
 function demoInfo (id) {
     d3.json(url).then(function(data) {
-
+        //identifying correct data
         let participants = data.metadata;
+        //filter by ID
         let r = participants.filter(s => s.id==id);
         let r1 = r[0];
+        //locating the HTML id location
         let p = d3.select("#sample-metadata");
         p.html("");
+        //adding all the elements of the demographic data
         for(k in r1) {
             p.append("h6").text(`${k.toUpperCase()}: ${r1[k]}`);
         }
     })
 }
-
+//filtering data and creating bubble chart
 function bubble (id) {
     d3.json(url).then(function(data) {
         let samples = data.samples;
@@ -112,6 +127,7 @@ function bubble (id) {
     })
 }
 
+//creating bubble chart
 function guage (id) {
     d3.json(url).then(function(data) {
         let samples = data.metadata;
